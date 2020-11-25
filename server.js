@@ -4,6 +4,7 @@ const morgan = require('morgan'); // server http log
 const app = express(); 
 const cors = require('cors'); // configures to allow CORS
 const helmet = require('helmet'); // removes server identfier from response header, and other things
+const MOVIE_DATA = require('./movies-data-small.json');
 
 app.use(morgan('dev'));
 app.use(cors());
@@ -56,15 +57,16 @@ const handleGetHome = (req, res) => {
     return res.status(200).send(`You've reached the home route. All the action is at the '/movie' endpoint.`)
 }
 
+// run validation on all endpoints
+app.use(validateBearerToken); 
 
+// ENDPOINTS
 app.get('/', handleGetHome);
-
-
 app.get('/movie', handleGetMovie);
 
 
 
-
+// deploy server
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost/${PORT}`);
 })
