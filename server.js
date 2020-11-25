@@ -46,7 +46,7 @@ const validateBearerToken = (req, res, next) => {
 const findUniqueGenres = () => {
     // grab all the genres in the DB
     let movieGenres = MOVIE_DATA.map(movie => {
-        return movie.genre;
+        return movie.genre.toLowerCase();
     });
     // filter down to only unique genres
     // if the array doesn't already contain the genre, add it
@@ -55,32 +55,6 @@ const findUniqueGenres = () => {
     return uniqueGenres;
 }
 
-
-/**
- * handleGetMovies
- * genre - filter by genre. case insensitive.
- * country - filter to include specified country. case insensitive.
- * vote - filter by vote >= to the given number
- */
-const handleGetMovie = (req, res) => {
-    // initialize response object
-    let response = MOVIE_DATA;
-    let validMovieGenres = findUniqueGenres();
-    // get query parameters
-    const { genre, country, avg_vote } = req.query;
-    // validate params
-    // check if keys are provided without a value
-    if(genre === '' || country === '' || avg_vote === ''){
-        res.status(400).send('keys must contain a value')
-    }
-    if(genre && !validMovieGenres.includes(genre)){
-        return res.status(400).send(`genre must be of a valid types. See /genres for a list of valid types`);
-    }
-    
-
-    // return response
-    return res.status(200).send(response)
-}
 
 /**
  * handleGetHome
@@ -94,6 +68,55 @@ const handleGetHome = (req, res) => {
         See a list of movie genres at '/genres'
     `)
 }
+
+
+/**
+ * handleGetMovies
+ * genre - filter by genre. case insensitive.
+ * country - filter to include specified country. case insensitive.
+ * vote - filter by vote >= to the given number
+ */
+const handleGetMovie = (req, res) => {
+    // initialize response object
+    let response = MOVIE_DATA;
+    let validMovieGenres = findUniqueGenres()
+    // get query parameters
+    let { genre, country, avg_vote } = req.query;
+    
+    // validate params
+    // check if keys are provided without a value
+    if(genre === '' || country === '' || avg_vote === ''){
+        res.status(400).send('keys must contain a value')
+    }
+    //check that genre is valid
+    if(genre && !validMovieGenres.includes(genre.toLowerCase())){
+        return res.status(400).send(`genre must be of a valid types. See /genres for a list of valid types`);
+    }
+
+    // filter by genre
+    if (genre) {
+        response = response.filter(movie =>
+          movie.genre.toLowerCase().includes(genre.toLowerCase())
+        )
+      }
+    // filter by country
+    if (country) {
+        response = response.filter(movie =>
+            movie.country.toLowerCase().includes(country.toLowerCase())
+        )
+    }
+    // filter by avg_vote
+    if (avg_vote) {
+        response = response.filter(movie =>
+        Number(movie.avg_vote) >= Number(avg_vote)
+        )
+    }
+
+    // return response
+    return res.status(200).send(response)
+}
+
+
 
 // run validation on all endpoints
 app.use(validateBearerToken); 
