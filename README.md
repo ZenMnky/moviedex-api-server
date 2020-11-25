@@ -10,4 +10,6 @@ Set up API_TOKEN
 
 GET requests:
 - set 'Authorization' header equal to `Bearer <YOUR-UUID-NUMBER>`
+
+Other useful notes:
 - see route query options at '/'
