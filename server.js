@@ -38,6 +38,28 @@ const validateBearerToken = (req, res, next) => {
 }
 
 /**
+ * getMovieGenres
+ * returns an array of valid movie genres based on the genres in the database
+ * each DB movie has only one genre string value
+ * 
+ */
+
+app.get('/genres', (req,res) => {
+    // grab all the genres in the DB
+    let movieGenres = MOVIE_DATA.map(movie => {
+        return movie.genre;
+    });
+    // filter down to only unique genres
+    // if the array doesn't already contain the genre, add it
+    let uniqueGenres = [...new Set(movieGenres)];
+
+
+    return res.json(uniqueGenres);
+
+})
+
+
+/**
  * handleGetMovies
  * genre - filter by genre. case insensitive.
  * country - filter to include specified country. case insensitive.
@@ -45,6 +67,7 @@ const validateBearerToken = (req, res, next) => {
  */
 const handleGetMovie = (req, res) => {
     const { genre, country, avg_vote } = req.params;
+
 
     return res.status(200).send(`You've reached the UPDATED /Movie route. It's under construction.`)
 }
