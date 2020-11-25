@@ -30,7 +30,7 @@ const validateBearerToken = (req, res, next) => {
     //returns an array with two elements. token is second element
     const token = authVal.split(' ')[1]
     if(token !== API_TOKEN){
-        return res.status(401).json(message: 'invalid credntials')
+        return res.status(401).json({message: 'invalid credntials'})
     }
 
     next();
