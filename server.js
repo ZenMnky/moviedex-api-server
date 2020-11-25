@@ -1,15 +1,40 @@
-const express = require('express');
-const morgan = require('morgan');
-const app = express();
-const cors = require('cors');
-const helmet = require('helmet');
-
-const PORT = 8000;
+require('dotenv').config(); //reads the .env file and adds values to 'process.env' object
+const express = require('express'); // boss man
+const morgan = require('morgan'); // server http log
+const app = express(); 
+const cors = require('cors'); // configures to allow CORS
+const helmet = require('helmet'); // removes server identfier from response header, and other things
 
 app.use(morgan('dev'));
 app.use(cors());
 app.use(helmet());
 
+const PORT = 8000;
+const API_TOKEN = process.env.API_TOKEN;
+
+/**
+ * validateBearerToken
+ * 
+ */
+const validateBearerToken = (req, res, next) => {
+    const authVal = req.get('Authorization')
+
+    if(!authVal){
+        return res.status(400).json({error: 'Unauthorized request'});
+    }
+    if(!authVal.startsWith('Bearer ')){
+        return res.status(400).send('Must include Bearer token')
+    }
+
+    //returns an array with two elements. token is second element
+    const token = authVal.split(' ')[1]
+    if(token !== API_TOKEN){
+        return res.status(401).json(message: 'invalid credntials')
+    }
+
+    next();
+
+}
 
 /**
  * handleGetMovies
