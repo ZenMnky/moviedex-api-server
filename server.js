@@ -38,13 +38,12 @@ const validateBearerToken = (req, res, next) => {
 }
 
 /**
- * getMovieGenres
- * returns an array of valid movie genres based on the genres in the database
- * each DB movie has only one genre string value
+ * findUniqueGenres
+ * 
+ * @returns {array} - valid movie genres based on the genres in the database
  * 
  */
-
-app.get('/genres', (req,res) => {
+const findUniqueGenres = () => {
     // grab all the genres in the DB
     let movieGenres = MOVIE_DATA.map(movie => {
         return movie.genre;
@@ -53,10 +52,8 @@ app.get('/genres', (req,res) => {
     // if the array doesn't already contain the genre, add it
     let uniqueGenres = [...new Set(movieGenres)];
 
-
-    return res.json(uniqueGenres);
-
-})
+    return uniqueGenres;
+}
 
 
 /**
@@ -66,10 +63,23 @@ app.get('/genres', (req,res) => {
  * vote - filter by vote >= to the given number
  */
 const handleGetMovie = (req, res) => {
-    const { genre, country, avg_vote } = req.params;
+    // initialize response object
+    let response = MOVIE_DATA;
+    let validMovieGenres = findUniqueGenres();
+    // get query parameters
+    const { genre, country, avg_vote } = req.query;
+    // validate params
+    // check if keys are provided without a value
+    if(genre === '' || country === '' || avg_vote === ''){
+        res.status(400).send('keys must contain a value')
+    }
+    if(genre && !validMovieGenres.includes(genre)){
+        return res.status(400).send(`genre must be of a valid types. See /genres for a list of valid types`);
+    }
+    
 
-
-    return res.status(200).send(`You've reached the UPDATED /Movie route. It's under construction.`)
+    // return response
+    return res.status(200).send(response)
 }
 
 /**
@@ -77,7 +87,12 @@ const handleGetMovie = (req, res) => {
  * friendly user message to point to where the action is
  */
 const handleGetHome = (req, res) => {
-    return res.status(200).send(`You've reached the home route. All the action is at the '/movie' endpoint.`)
+    return res.status(200).send(`
+        You've reached the home route.
+        The primary endpoint is '/movie'
+        Optional parameters: genre, country, avg_vote
+        See a list of movie genres at '/genres'
+    `)
 }
 
 // run validation on all endpoints
@@ -86,7 +101,12 @@ app.use(validateBearerToken);
 // ENDPOINTS
 app.get('/', handleGetHome);
 app.get('/movie', handleGetMovie);
+//return array of uniuqe genre types
+app.get('/genres', (req,res) => {
+    let uniqueGenres = findUniqueGenres();
+    return res.json(uniqueGenres);
 
+})
 
 
 // deploy server
