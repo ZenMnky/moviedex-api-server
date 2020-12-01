@@ -10,6 +10,9 @@ const morganSetting = process.env.NODE_ENV === 'production'
 ? 'tiny'
 : 'dev';
 
+const PORT = process.env.PORT || 8000;
+const API_TOKEN = process.env.API_TOKEN;
+
 app.use(morgan(morganSetting));
 app.use(cors());
 app.use(helmet());
@@ -22,9 +25,6 @@ app.use((error, req, res, next) => {
     }
     res.status(500).json(response)
 })
-
-const PORT = process.env.PORT || 8000;
-const API_TOKEN = process.env.API_TOKEN;
 
 /**
  * validateBearerToken
