@@ -6,11 +6,24 @@ const cors = require('cors'); // configures to allow CORS
 const helmet = require('helmet'); // removes server identfier from response header, and other things
 const MOVIE_DATA = require('./movies-data-small.json');
 
-app.use(morgan('dev'));
+const morganSetting = process.env.NODE_ENV === 'production'
+? 'tiny'
+: 'dev';
+
+app.use(morgan(morganSetting));
 app.use(cors());
 app.use(helmet());
+app.use((error, req, res, next) => {
+    let response;
+    if (process.env.NODE_ENV === 'production') {
+        response = { error: { message: 'server error'} }
+    } else {
+        response = { error }
+    }
+    res.status(500).json(response)
+})
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 const API_TOKEN = process.env.API_TOKEN;
 
 /**
@@ -134,6 +147,6 @@ app.get('/genres', (req,res) => {
 
 // deploy server
 app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost/${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 })
 

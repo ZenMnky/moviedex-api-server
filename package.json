@@ -5,9 +5,14 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "npm server.js"
+    "start": "npm server.js",
+    "predeploy": "npm audit",
+    "deploy": "git push heroku master"
   },
   "keywords": [],
+  "engines": {
+    "node": "14.15.0"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
